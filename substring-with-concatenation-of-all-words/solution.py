@@ -4,12 +4,9 @@ import re
 
 class Solution:
     def findSubstring(self, s: str, words: List[str]) -> List[int]:
-        word_length = len(words[0])
-        num_words = len(words)
-        ret = []
-        matches = []
-        matches.append({(mat.group(1), mat.start()) for mat in re.finditer(f"(?<!{'|'.join(set(words))})(?=(({'|'.join(set(words))})+))", s)})
-        matches = set.union(*matches)
+        word_length, num_words, ret, matches = len(words[0]), len(words), [], []
+        regex = '|'.join(set(words))
+        matches = [(mat.group(1), mat.start()) for mat in re.finditer(f"(?<!{regex})(?=(({regex})+))", s)]
         for x, start in matches:
             trial = [x[i:i+word_length] for i in range(0, len(x), word_length)]
             end = num_words
