@@ -47,5 +47,6 @@ int main()
     mycal.printCalendar("Sun", 31);
     mycal.printCalendar("Fri", 99);
     mycal.printCalendar("Tue", 28);
+    mycal.printCalendar("Thu", 31);
     return 0;
 }
