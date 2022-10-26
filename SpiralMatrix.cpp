@@ -8,7 +8,8 @@ void print(const T &myT)
 {
     for (auto x : myT)
         std::cout << x << " ";
-    std::cout << std::endl;
+    std::cout << std::endl
+              << std::endl;
 }
 
 class Solution
@@ -23,20 +24,16 @@ public:
         ret.reserve(m * n);
         while (*curDist > 0)
         {
-            cout << "m: " << m << ", n: " << n << endl;
             pair<int, int> directions = dir[mode];
-            cout << "directions: " << directions.first << directions.second << endl;
             for (int z = 0; z < *curDist; ++z)
             {
                 i += directions.first;
                 j += directions.second;
-                std::cout << i << j << endl;
                 ret.emplace_back(matrix[i][j]);
             }
             mode = (mode + 1) % 4;
-            *curDist = *curDist - 1;
+            (*curDist)--;
             curDist = (curDist == &n) ? &m : &n;
-            print(ret);
         }
         return ret;
     }
@@ -45,8 +42,11 @@ public:
 int main()
 {
     vector<vector<int>> mat1{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 15, 16}};
+    vector<vector<int>> mat2{{1, 2, 3, 4}};
+    vector<vector<int>> mat3{{1}, {2}, {3}, {4}};
     Solution s;
-    auto x = s.spiralOrder(mat1);
-    print(x);
+    print(s.spiralOrder(mat1));
+    print(s.spiralOrder(mat2));
+    print(s.spiralOrder(mat3));
     return 0;
 }
