@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <bitset>
 #include <cmath>
+#include <random>
+#include <cassert>
 
 // Encodes two 32 bit signed integers into one 64 bit unsigned integer, then decodes
 
@@ -52,5 +54,20 @@ int main()
     prettyPrint(INT_MIN + 1, INT_MIN + 1);
     prettyPrint(INT_MIN, INT_MIN + 1);
     // Having one INT_MIN fails
+
+    Solution s;
+    random_device rd;
+    default_random_engine dre(rd());
+    uniform_int_distribution uid(INT_MIN + 1, INT_MAX);
+
+    for (int i = 0; i < 10000; ++i)
+    {
+        int x = uid(dre);
+        int y = uid(dre);
+        if (i % 100 == 0)
+            cout << x << " " << y << endl;
+        intPair myPair = intPair(x, y);
+        assert(myPair == s.decode(s.encode(myPair)));
+    }
     return 0;
 }
