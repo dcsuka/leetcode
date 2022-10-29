@@ -1,9 +1,8 @@
 #include <iostream>
 #include <stdint.h>
 #include <bitset>
-#include <cmath>
 #include <random>
-#include <cassert>
+#include <stdexcept>
 
 // Encodes two 32 bit signed integers into one 64 bit unsigned integer, then decodes
 
@@ -16,6 +15,8 @@ class Solution
 public:
     uint64_t encode(intPair x)
     {
+        if (x.first == INT_MIN || x.second == INT_MIN)
+            throw out_of_range("INT_MIN values cannot be combined.");
         return ((uint64_t)(x.first < 0) << 63) | ((uint64_t)(abs(x.first)) << 32) | (abs(x.second)) | ((uint64_t)(x.second < 0) << 31);
     }
     intPair decode(uint64_t y)
@@ -52,7 +53,6 @@ int main()
     prettyPrint(INT_MAX, INT_MAX - 100);
     prettyPrint(INT_MAX - 4759, INT_MAX - 324);
     prettyPrint(INT_MIN + 1, INT_MIN + 1);
-    prettyPrint(INT_MIN, INT_MIN + 1);
     // Having one INT_MIN fails
 
     Solution s;
