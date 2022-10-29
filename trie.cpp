@@ -1,93 +1,86 @@
 #include <iostream>
-#include <vector>
 #include <string>
 
 using namespace std;
 
 // Implements a trie data structure for lowercase English letters
 
-struct TrieNode
-{
-    vector<TrieNode *> data;
-    bool wordEnds = false;
-    TrieNode() : data(26, nullptr) {}
-};
-
 class Trie
 {
 public:
-    Trie()
-    {
-        root = new TrieNode();
-    }
+    Trie() {}
     void insert(string word)
     {
-        TrieNode *ptr = root;
+        Trie *ptr = this;
         for (char c : word)
         {
-            if (!ptr->data[c - 'a'])
-                ptr->data[c - 'a'] = new TrieNode();
-            ptr = ptr->data[c - 'a'];
+            c -= 'a';
+            if (!ptr->children[c])
+                ptr->children[c] = new Trie();
+            ptr = ptr->children[c];
         }
-        ptr->wordEnds = true;
+        ptr->isWord = true;
     }
     bool search(string word)
     {
-        TrieNode *ptr = root;
+        Trie *ptr = this;
         for (char c : word)
         {
-            ptr = ptr->data[c - 'a'];
-            if (!ptr)
+            c -= 'a';
+            if (!ptr->children[c])
                 return false;
+            ptr = ptr->children[c];
         }
-        return ptr->wordEnds;
+        return ptr->isWord;
     }
     bool startsWith(string prefix)
     {
-        TrieNode *ptr = root;
+        Trie *ptr = this;
         for (char c : prefix)
         {
-            ptr = ptr->data[c - 'a'];
-            if (!ptr)
+            c -= 'a';
+            if (!ptr->children[c])
                 return false;
+            ptr = ptr->children[c];
         }
         return true;
-    }
-    void clear(TrieNode *&tn)
-    {
-        for (auto &x : tn->data)
-        {
-            if (x)
-                clear(x);
-        }
-        delete tn;
-        tn = nullptr;
     }
     ~Trie()
     {
         cout << "Destructor was called" << endl;
-        clear(root);
+        Trie *tr = this;
+        for (Trie *x : tr->children)
+        {
+            if (x)
+            {
+                delete x;
+                x = nullptr;
+            }
+        }
     }
 
 private:
-    TrieNode *root;
+    Trie *children[26] = {};
+    bool isWord = false;
 };
 
 int main()
 {
-    Trie x;
-    x.insert("david");
-    cout << x.search("dav") << endl;
-    cout << x.search("shmavid") << endl;
-    cout << x.search("david") << endl;
-    cout << x.search("davids") << endl;
-    cout << x.search("dsfsdfsdf") << endl;
-    x.insert("dsfsdfsdf");
-    cout << x.search("dsfsdfsdf") << endl;
-    cout << x.startsWith("xyz") << endl;
-    cout << x.startsWith("dsfg") << endl;
-    cout << x.startsWith("dav") << endl;
-    cout << x.startsWith("dsf") << endl;
-    cout << x.startsWith("davids") << endl;
+    Trie *x = new Trie();
+    x->insert("david");
+    cout << x->search("dav") << endl;
+    cout << x->search("shmavid") << endl;
+    cout << x->search("david") << endl;
+    cout << x->search("davids") << endl;
+    cout << x->search("dsfsdfsdf") << endl;
+    x->insert("dsfsdfsdf");
+    cout << x->search("dsfsdfsdf") << endl;
+    cout << x->startsWith("xyz") << endl;
+    cout << x->startsWith("dsfg") << endl;
+    cout << x->startsWith("dav") << endl;
+    cout << x->startsWith("dsf") << endl;
+    cout << x->startsWith("davids") << endl;
+    delete x;
+    x = nullptr;
     return 0;
 }
