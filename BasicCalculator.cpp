@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <functional>
+#include <stack>
+#include <chrono>
 
 using namespace std;
 
@@ -47,16 +48,70 @@ public:
     }
 };
 
+class StackSolution {
+public:git 
+    int calculate(string s) {
+        stack<int> nums;
+        stack<int> signs;
+        long ret = 0, num = 0, sign = 1;
+        for (char &c : s) {
+            if (c >= '0' && c <= '9') num = num * 10 + c - '0';
+            else if (c == '+' || c == '-') {
+                ret = ret + sign * num;
+                num = 0;
+                sign = (c == '+') ? 1 : -1;
+            }
+            else if (c == '(') {
+                nums.emplace(ret); ret = 0;
+                signs.emplace(sign), sign = 1;
+                num = 0;
+            }
+            else if (c == ')') {
+                ret = ret + sign * num;
+                num = 0;
+                ret = nums.top() + signs.top() * ret;
+                nums.pop(); signs.pop();
+            }
+        }
+        ret = ret + sign * num;
+        return ret;
+    }
+};
+
 int main () {
     MySolution sol;
-    cout << sol.calculate("5 - 0 + 4") << " == 9" << endl;
-    cout << sol.calculate("5 - (1 + 1)") << " == 3" << endl;
-    cout << sol.calculate("1 + 1") << " == 2" << endl;
-    cout << sol.calculate(" 2-1 + 2 ") << " == 3" << endl;
-    cout << sol.calculate("+157 - 58 ") << " == 99" << endl;
-    cout << sol.calculate("(1+(4+5+2)-3)+(6+8)") << " == 23" << endl;
-    cout << sol.calculate("(11-(43 +511-2 )-3)-(6+8)") << " == -558" << endl;
-    cout << sol.calculate("(7)-(0)+(4)") << " == 11" << endl;
-    cout << sol.calculate("1-(     -2)") << " == 3" << endl;
+    auto start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < 100000000; ++i) {
+        int x = sol.calculate("5 - 0 + 4");
+        x = sol.calculate("5 - (1 + 1)");
+        x = sol.calculate("1 + 1");
+        x = sol.calculate(" 2-1 + 2 ");
+        x = sol.calculate("+157 - 58 ");
+        x = sol.calculate("(1+(4+5+2)-3)+(6+8)");
+        x = sol.calculate("(11-(43 +511-2 )-3)-(6+8)");
+        x = sol.calculate("(7)-(0)+(4)");
+        x = sol.calculate("1-(     -2)");        
+    }
+    auto end = chrono::high_resolution_clock::now();
+    auto time = chrono::duration_cast<chrono::microseconds> (end - start);
+    cout << time.count() << endl;
+
+    StackSolution ssol;
+    start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < 100000000; ++i) {
+        int x = sol.calculate("5 - 0 + 4");
+        x = sol.calculate("5 - (1 + 1)");
+        x = sol.calculate("1 + 1");
+        x = sol.calculate(" 2-1 + 2 ");
+        x = sol.calculate("+157 - 58 ");
+        x = sol.calculate("(1+(4+5+2)-3)+(6+8)");
+        x = sol.calculate("(11-(43 +511-2 )-3)-(6+8)");
+        x = sol.calculate("(7)-(0)+(4)");
+        x = sol.calculate("1-(     -2)");         
+    }
+    end = chrono::high_resolution_clock::now();
+    time = chrono::duration_cast<chrono::microseconds> (end - start);   
+    cout << time.count() << endl;
+
     return 0;
 }
