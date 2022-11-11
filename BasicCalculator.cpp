@@ -49,7 +49,7 @@ public:
 };
 
 class StackSolution {
-public:git 
+public:
     int calculate(string s) {
         stack<int> nums;
         stack<int> signs;
