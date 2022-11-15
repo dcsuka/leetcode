@@ -4,6 +4,13 @@
 
 using namespace std;
 
+using tup = tuple<int ,int, int, int>;
+
+void print (const vector<tup> &myT) {
+    for (auto &x : myT) std::cout << get<0>(x) << " " << get<1>(x) << " " << get<2>(x) << " " << get<3>(x) << endl;
+    std::cout << std::endl;
+}
+
 template <typename T>
 void print(const std::vector<std::vector<T>> &myT)
 {
@@ -18,12 +25,19 @@ void print(const std::vector<std::vector<T>> &myT)
     std::cout << std::endl;
 }
 
+//i, j, height, minNeighbor
+
+
+bool Compare(const tup &a, const tup &b) {
+    return get<2>(a) > get<2>(b);
+}
+
 class Solution {
 public:
     int DIR[5] = {-1, 0, 1, 0, -1};
-    int m, n, solidsum, maxheight, ret;
+    bool debug = false;
     int trapRainWater(vector<vector<int>>& heightMap) {
-        m = heightMap.size(), n = heightMap[0].size(), solidsum = 0, maxheight = 0, ret = 0;
+        int m = heightMap.size(), n = heightMap[0].size(), solidsum = 0, maxheight = 0, ret = 0;
         if (m <= 1 || n <= 1) return 0;
         for (int i = 0; i < m; ++i) {
             for (int j = 0; j < n; ++j) {
@@ -33,52 +47,63 @@ public:
         }
 
         ret = m * n * maxheight - solidsum;
-        vector<vector<int>> shaved (m, vector<int>(n, 0));
+        vector<vector<bool>> visited (m, vector<bool>(n, false));
+        vector<tup> pq;
+        pq.reserve(2 * m + 2 * n - 4);
 
         //left, right, get corners too
         for (int i = 0; i < m; ++i) {
             for (int j = 0; j < n; j += n - 1) {
-                if (i == 0 || i == m - 1 || (heightMap[i][j] <= heightMap[i + 1][j]))
-                    dfs(i, j, heightMap[i][j] + 1, heightMap, shaved);
+                pq.emplace_back(tuple(i, j, heightMap[i][j], 0));
+                visited[i][j] = true;
             }
         }
 
         for (int i = 0; i < m; i += m - 1) {
             for (int j = 1; j < n - 1; ++j) {
-                if (j == 0 || j == n - 1 || (heightMap[i][j] <= heightMap[i][j + 1]))
-                    dfs(i, j, heightMap[i][j] + 1, heightMap, shaved);
+                pq.emplace_back(tuple(i, j, heightMap[i][j], 0));
+                visited[i][j] = true;
             }
-        }         
+        }
+
+        make_heap(pq.begin(), pq.end(), Compare);
+
+        while(pq.size()) {
+            if (debug) print(pq);
+            if (debug) cout << ret << endl;
+            pop_heap(pq.begin(), pq.end(), Compare);
+            tup top = pq.back(); pq.pop_back();
+            if (debug) std::cout << get<0>(top) << " " << get<1>(top) << " " << get<2>(top) << " " << get<3>(top) << endl << endl;
+            if (debug) print(visited);
+            ret -= (maxheight - max(get<2>(top), get<3>(top)));
+            for (int z = 0; z < 4; ++z) {
+                int a = get<0>(top) + DIR[z], b = get<1>(top) + DIR[z + 1];
+                if (a < 0 || a == m || b < 0 || b == n || visited[a][b]) continue;
+                pq.push_back(tuple(a, b, heightMap[a][b], max(get<2>(top), get<3>(top))));
+                push_heap(pq.begin(), pq.end(), Compare);
+                visited[a][b] = true;
+            }
+        }
 
         return ret;
-    }
-
-    void dfs(int i, int j, int level,  vector<vector<int>>& board, vector<vector<int>>& shaved) {
-        if (i < 0 || i >= m || j < 0 || j == n || board[i][j] == INT_MIN || board[i][j] + shaved[i][j] >= maxheight) return;
-        level = max(level, board[i][j] + 1);
-        if (level > maxheight) return;
-        ret -= max(0, maxheight - level + 1 - shaved[i][j]);
-        shaved[i][j] = max(shaved[i][j], maxheight - level + 1);
-        int val = board[i][j];
-        board[i][j] = INT_MIN;
-        for (int z = 0; z < 4; ++z) {
-            dfs(i + DIR[z], j + DIR[z + 1], level, board, shaved);
-        }
-        board[i][j] = val;
     }
 };
 
 int main() {
     Solution sol;
+    vector<vector<int>> v3 {{3,1,3,3,3},{3,1,1,1,3},{3,1,1,1,3},{3,1,1,1,3},{3,3,3,3,3}};
+    cout << sol.trapRainWater(v3) << " == 0" << endl;
     vector<vector<int>> v1 {{1,4,3,1,3,2},{3,2,1,3,2,4},{2,3,3,2,3,1}};
     cout << sol.trapRainWater(v1) << " == 4" << endl;
     vector<vector<int>> v2 {{3,3,3,3,3},{3,2,2,2,3},{3,2,1,2,3},{3,2,2,2,3},{3,3,3,3,3}};
     cout << sol.trapRainWater(v2) << " == 10" << endl;
-    vector<vector<int>> v3 {{3,1,3,3,3},{3,1,1,1,3},{3,1,1,1,3},{3,1,1,1,3},{3,3,3,3,3}};
-    cout << sol.trapRainWater(v3) << " == 0" << endl;
     vector<vector<int>> v4 {{1}};
     cout << sol.trapRainWater(v4) << " == 0" << endl;
     vector<vector<int>> v5 {{18,13,13,17,12,11},{17,2,6,10,5,10},{11,10,2,8,8,2},{12,6,10,8,8,7},{18,4,7,6,7,4},{20,5,9,2,3,10}};
     cout << sol.trapRainWater(v5) << " == 18" << endl;
     return 0;
 }
+
+/*
+
+*/
