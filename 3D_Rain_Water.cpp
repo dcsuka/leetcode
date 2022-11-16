@@ -4,41 +4,16 @@
 
 using namespace std;
 
-using tup = tuple<int ,int, int, int>;
-
-void print (const vector<tup> &myT) {
-    for (auto &x : myT) std::cout << get<0>(x) << " " << get<1>(x) << " " << get<2>(x) << " " << get<3>(x) << endl;
-    std::cout << std::endl;
-}
-
-template <typename T>
-void print(const std::vector<std::vector<T>> &myT)
-{
-    for (auto i : myT)
-    {
-        for (auto j : i)
-        {
-            std::cout << j << " ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
-//i, j, height, minNeighbor
-
-
-bool Compare(const tup &a, const tup &b) {
-    return get<2>(a) > get<2>(b);
-}
+using tup = tuple<int ,int, int>;
 
 class Solution {
 public:
     int DIR[5] = {-1, 0, 1, 0, -1};
-    bool debug = false;
     int trapRainWater(vector<vector<int>>& heightMap) {
         int m = heightMap.size(), n = heightMap[0].size(), solidsum = 0, maxheight = 0, ret = 0;
-        if (m <= 1 || n <= 1) return 0;
+        auto lam = [&heightMap] (const tup &a, const tup &b) {return heightMap[get<0>(a)][get<1>(a)] > heightMap[get<0>(b)][get<1>(b)];};
+
+        if (m < 3 || n < 3) return 0;
         for (int i = 0; i < m; ++i) {
             for (int j = 0; j < n; ++j) {
                 solidsum += heightMap[i][j];
@@ -54,33 +29,29 @@ public:
         //left, right, get corners too
         for (int i = 0; i < m; ++i) {
             for (int j = 0; j < n; j += n - 1) {
-                pq.emplace_back(tuple(i, j, heightMap[i][j], 0));
+                if (heightMap[i][j] < maxheight) pq.emplace_back(tuple(i, j, 0));
                 visited[i][j] = true;
             }
         }
 
         for (int i = 0; i < m; i += m - 1) {
             for (int j = 1; j < n - 1; ++j) {
-                pq.emplace_back(tuple(i, j, heightMap[i][j], 0));
+                if (heightMap[i][j] < maxheight) pq.emplace_back(tuple(i, j, 0));
                 visited[i][j] = true;
             }
         }
 
-        make_heap(pq.begin(), pq.end(), Compare);
+        make_heap(pq.begin(), pq.end(), lam);
 
         while(pq.size()) {
-            if (debug) print(pq);
-            if (debug) cout << ret << endl;
-            pop_heap(pq.begin(), pq.end(), Compare);
+            pop_heap(pq.begin(), pq.end(), lam);
             tup top = pq.back(); pq.pop_back();
-            if (debug) std::cout << get<0>(top) << " " << get<1>(top) << " " << get<2>(top) << " " << get<3>(top) << endl << endl;
-            if (debug) print(visited);
-            ret -= (maxheight - max(get<2>(top), get<3>(top)));
+            ret -= (maxheight - max(get<2>(top), heightMap[get<0>(top)][get<1>(top)]));
             for (int z = 0; z < 4; ++z) {
                 int a = get<0>(top) + DIR[z], b = get<1>(top) + DIR[z + 1];
-                if (a < 0 || a == m || b < 0 || b == n || visited[a][b]) continue;
-                pq.push_back(tuple(a, b, heightMap[a][b], max(get<2>(top), get<3>(top))));
-                push_heap(pq.begin(), pq.end(), Compare);
+                if (a < 0 || a == m || b < 0 || b == n || visited[a][b] || heightMap[a][b] == maxheight) continue;
+                pq.push_back(tuple(a, b, max(get<2>(top), heightMap[get<0>(top)][get<1>(top)])));
+                push_heap(pq.begin(), pq.end(), lam);
                 visited[a][b] = true;
             }
         }
@@ -103,7 +74,3 @@ int main() {
     cout << sol.trapRainWater(v5) << " == 18" << endl;
     return 0;
 }
-
-/*
-
-*/
