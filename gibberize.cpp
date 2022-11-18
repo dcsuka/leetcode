@@ -30,7 +30,6 @@ public:
 };
 
 int main() {
-
     Solution sol;
     wstring a = L"abdsfsisdfdsesfU";
     sol.gibberize(a);
