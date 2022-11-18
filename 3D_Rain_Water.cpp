@@ -25,7 +25,7 @@ public:
         ret = m * n * maxheight - solidsum;
         vector<vector<bool>> visited (m, vector<bool>(n, false));
         vector<tup> pq;
-        pq.reserve(2 * m + 2 * n - 4);
+        pq.reserve(m * n);
 
         //left, right, get corners too
         for (int i = 0; i < m; ++i) {
@@ -89,6 +89,7 @@ public:
         int ret = 0, m = heightMap.size(), n = heightMap[0].size();
         vector<vector<bool>> visited (m, vector<bool> (n, false));
         vector<tup> q;
+        q.reserve(m * n);
         auto lam = [&heightMap](const tup &a, const tup &b) {
             return heightMap[get<0>(a)][get<1>(a)] > heightMap[get<0>(b)][get<1>(b)];
         };
@@ -157,8 +158,8 @@ int main() {
     cout << sol.trapRainWater(v4) << " == 0" << endl;
     vector<vector<int>> v5 {{18,13,13,17,12,11},{17,2,6,10,5,10},{11,10,2,8,8,2},{12,6,10,8,8,7},{18,4,7,6,7,4},{20,5,9,2,3,10}};
     cout << sol.trapRainWater(v5) << " == 18" << endl;
-    //timeit(s);
-    //timeit(sol);
+    timeit(s);
+    timeit(sol);
     return 0;
 
 }
